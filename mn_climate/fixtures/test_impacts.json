@@ -1,0 +1,332 @@
+[
+{
+  "fields": {
+    "date": "2014-09-27T15:39:02.938Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1080017089843750 46.8395283768194517)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 1
+},
+{
+  "fields": {
+    "date": "2014-09-27T15:39:25.909Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.9596862792968750 46.8939854609254922)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 2
+},
+{
+  "fields": {
+    "date": "2014-09-27T15:41:09.321Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1917724609375000 46.8846002499355521)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 3
+},
+{
+  "fields": {
+    "date": "2014-09-27T15:41:28.337Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.2233581542968750 46.8686416223321203)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 4
+},
+{
+  "fields": {
+    "date": "2014-09-27T15:42:40.634Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.2631835937500000 46.7718496146773290)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 5
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:31:42.496Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1903991699218750 46.8367101283604725)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 6
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:32:00.868Z",
+    "comment": "Test Point",
+    "geom": "POINT (-92.0599365234375000 46.7106775941963690)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 7
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:32:12.719Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1574401855468750 46.7248003746671685)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 8
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:32:23.869Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.5282287597656250 46.6871314124441312)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 9
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:32:36.958Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.6685485839843750 47.0195888643821434)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 10
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:32:48.119Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.0310974121093750 47.0607674798334941)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 11
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:33:05.457Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.2716674804687500 47.2876134257135163)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 12
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:33:18.491Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.3774108886718750 47.2969278929174166)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 13
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:34:23.302Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1038818359375000 47.3285848107600842)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 14
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:34:34.516Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1519470214843750 47.2689795696476907)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 15
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:34:48.171Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.2055053710937500 47.3090342477478103)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 16
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:35:26.893Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1931457519531250 46.8329522338121507)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 17
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:35:43.661Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.7262268066406250 46.8423464774632450)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 18
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:36:58.410Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.0354614257812500 47.4689496776724837)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 19
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:37:13.641Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.1590576171875000 47.5060697819108455)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 20
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:37:27.502Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.3156127929687500 47.5793049264428944)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 21
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:38:14.390Z",
+    "comment": "Test point",
+    "geom": "POINT (-90.4119873046875000 47.8251421788777549)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 22
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:38:22.729Z",
+    "comment": "Test point",
+    "geom": "POINT (-90.3433227539062500 47.7550212540767376)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 23
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:38:33.773Z",
+    "comment": "Test point",
+    "geom": "POINT (-90.4930114746093750 47.7937839866193102)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 24
+},
+{
+  "fields": {
+    "date": "2014-09-27T16:38:46.916Z",
+    "comment": "Test point",
+    "geom": "POINT (-90.6646728515625000 47.9485460188932038)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 25
+},
+{
+  "fields": {
+    "date": "2014-11-23T22:33:40.433Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.1739196777343608 47.0710571679505705)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 26
+},
+{
+  "fields": {
+    "date": "2014-11-23T23:02:03.987Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.0783472061152821 46.7973988773401430)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 27
+},
+{
+  "fields": {
+    "date": "2014-11-23T23:00:57.687Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.0970153808593750 47.0902281049944165)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 28
+},
+{
+  "fields": {
+    "date": "2014-11-24T18:40:50.905Z",
+    "comment": "Test point",
+    "geom": "POINT (-92.0502376556396342 46.8333045475892860)",
+    "location_name": "Test Location",
+    "impact_type": 0
+  },
+  "model": "mn_climate.impact",
+  "pk": 29
+},
+{
+  "fields": {
+    "date": "2014-11-24T18:37:48.736Z",
+    "comment": "Test point",
+    "geom": "POINT (-91.3211059570312500 47.3388226948219994)",
+    "location_name": "Test Location",
+    "impact_type": 1
+  },
+  "model": "mn_climate.impact",
+  "pk": 30
+}
+]

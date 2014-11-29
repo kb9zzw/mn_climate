@@ -1,0 +1,18 @@
+# Contains local settings, not under version control
+
+# Set to True to enable debugging
+debug = False
+template_debug = False
+
+# Database settings
+db_name = 'mn_climate'
+db_user = 'django'
+db_password = 'changeme'
+db_host = 'localhost'
+db_port = ''
+
+# Allowed hosts
+allowed_hosts = ['.fluxmess.com', '.ncsu.edu' ]
+
+# secret key
+secret_key = '3shhw#trcm=xk)^7_6kl_u!qy2y0vmny&$xkvmav483pr0%&ei'
