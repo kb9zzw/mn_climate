@@ -34,7 +34,7 @@ def impacts(request):
         else:
             # serialize all impacts
             geojson = GeoJSONSerializer().serialize(Impact.objects.all())
-        return HttpResponse(geojson)
+        return HttpResponse(geojson, content_type='application/json')
     else :
         return HttpResponseBadRequest('form is invalid')
 
@@ -48,7 +48,7 @@ def counts(request):
             geojson = GeoJSONSerializer().serialize(CountyCount.objects.all())
         else:   # it must be zip
             geojson = GeoJSONSerializer().serialize(ZipCount.objects.all())
-        return HttpResponse(geojson)
+        return HttpResponse(geojson, content_type='application/json')
     else:
         return HttpResponseBadRequest('invalid form data')
 
