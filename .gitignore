@@ -1,0 +1,6 @@
+**/*.pyc
+**/.DS_Store
+
+mn_climate/static/bower_components
+mn_climate/local_settings.py
+

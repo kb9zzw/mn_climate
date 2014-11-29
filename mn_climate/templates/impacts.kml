@@ -1,0 +1,18 @@
+{% extends "base.kml" %}
+{% block placemarks %}{% for impact in impacts %}
+  <Placemark>
+    <name>{% if impact.impact_type %}Positive{% else %}Negative{% endif %}</name>
+    <description>
+      <![CDATA[
+        <p><strong>Location Name:</strong> {{ impact.location_name }}</p>
+        <p><strong>Comments:</strong> {{ impact.comment }}</p>
+        <p><strong>Date:</strong> {{ impact.date }}</p>
+      ]]>
+    </description>
+    <Point>
+       <coordinates>{{ impact.geom.x }},{{ impact.geom.y }}</coordinates>
+    </Point>
+    <Icon>
+      <href>{% if impact.impact_type %}http://maps.google.com/mapfiles/paddle/blu-blank.png{% else %}http://maps.google.com/mapfiles/paddle/red-blank.png{% endif %}</href>
+    </Icon>
+  </Placemark>{% endfor %}{% endblock %}

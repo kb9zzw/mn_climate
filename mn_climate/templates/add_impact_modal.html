@@ -1,0 +1,18 @@
+<div class="modal fade" id="addImpactModal" tabindex=-"-1" role="dialog" area-labelledby"myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" onclick="cancelAddImpact();"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">{{ flatblock.header }}</h4>
+      </div>
+      <div class="modal-body">
+        {{ flatblock.content|safe }}
+      </div>
+      <div class="modal-footer">
+        <label><input type="checkbox" checked="" name="hide_modal">Don't show again!</label><br />
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+        <button type="button" class="btn btn-default" onclick="cancelAddImpact();" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

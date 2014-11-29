@@ -1,0 +1,534 @@
+{% extends "base.html" %}
+
+{% load geojson_tags %}
+{% load flatblock_tags %}
+
+{% block "script" %}
+
+<!-- welcome modal -->
+{% flatblock "welcome_dialogue" using "welcome_modal.html" %}
+
+<!-- add impact modal -->
+{% flatblock "add_impact_dialogue" using "add_impact_modal.html" %}
+
+<!-- impact form -->
+<div id="form_container" class="hide">
+  <form id="impact_form" action="/add_impact/" method="post">
+    {% csrf_token %}
+    <h4>Tell us about this location</h4>
+    <div class="fieldWrapper">
+      <input id="coordinates" name="coordinates" value="" type="hidden" />
+    </div>
+    <div class="fieldWrapper">
+      <label>Impact Type:</label>
+      <br />{{ form.impact_type }}
+    </div>
+    <div class="fieldWrapper">
+      <label>Location Name:</label>
+      <br />{{ form.location_name }}
+    </div>
+    <div class="fieldWrapper">
+      <label>Comment:</label>
+      <br />{{ form.comment }}
+    </div>
+    <br>
+    <button type="button" id="add_point_button" onclick="submitImpact();" class="btn btn-primary">Add point</button>
+    <button type="button" id="cancel_button" onclick="cancelAddImpact();" class="btn btn-default">Cancel</button>
+  </form>
+</div>
+
+<script>
+
+// Show welcome modal
+$(document).ready(function() {
+  if($.cookie('welcome_shown') == null) {
+    $('#welcomeModal').modal('show');
+    $.cookie('welcome_shown', 'yes');
+  }
+});
+
+// Add impact modal
+$('#addImpactModal').on('hidden.bs.modal', function() {
+  if ($("input[name=hide_modal]", this).is(":checked")) {
+    $.cookie('hide_add_impact', 'yes');
+  }
+});
+
+// Le map...
+var map = L.map('map').setView([46.80, -92.10], 10);
+
+// Scale bar
+L.control.scale().addTo(map);
+
+// Geocoding control
+new L.Control.GeoSearch({
+  provider: new L.GeoSearch.Provider.Google(),
+  position: 'topright',
+  showMarker: false
+}).addTo(map);
+
+
+// Layer groups
+var impactGroup = new L.LayerGroup();
+var impactClusterGroup = new L.MarkerClusterGroup();
+var countyCountGroup = new L.LayerGroup();
+var zipCountGroup = new L.LayerGroup();
+var heatMapGroup = new L.LayerGroup();
+var stormEventsGroup = new L.LayerGroup();
+var normalsGroup = new L.LayerGroup();
+
+var overlays = {
+  'Climate Impacts': impactGroup,
+  'Impacts per County': countyCountGroup,
+  'Impacts per Zip Code': zipCountGroup,
+  'Impact Clusters': impactClusterGroup,
+  'Heat Map': heatMapGroup,
+  'Storm Events (2014)': stormEventsGroup,
+  '1981-2010 Climate Normals': normalsGroup,
+};
+
+var openStreetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+  maxZoom: 18
+});
+
+var esriWorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+var esriNatGeo = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+  maxZoom: 16
+});
+
+esriNatGeo.addTo(map);
+
+var baseMaps = {
+  'Open Street Map': openStreetMap,
+  'ESRI World Imagery' : esriWorldImagery,
+  'ESRI National Geographic' : esriNatGeo,
+};
+
+// Layer switcher control
+var layerControl = L.control.layers(baseMaps, overlays, {position: 'topleft'}).addTo(map);
+
+// Add point layers to map
+var impacts = getImpacts(heatMapGroup, impactClusterGroup);
+impactGroup.addLayer(impacts).addTo(map);
+
+// County Counts
+var countyCounts = getCounts('county');
+countyCountGroup.addLayer(countyCounts);
+
+// Zip Code Counts
+var zipCounts = getCounts('zip');
+zipCountGroup.addLayer(zipCounts);
+
+// Storm Events
+var stormEvents = getStormEvents();
+stormEventsGroup.addLayer(stormEvents);
+
+// Normals
+var normals = getNormals();
+normalsGroup.addLayer(normals);
+
+// New Impact Marker
+var newImpact = new L.LayerGroup();
+newImpact.addTo(map);
+
+var icons = [
+  // Negative
+  L.AwesomeMarkers.icon({
+    icon: 'glyphicon-exclamation-sign',
+    markerColor: 'darkred',
+  }),
+  // Positive
+  L.AwesomeMarkers.icon({
+    icon: 'glyphicon-ok-circle',
+    markerColor: 'darkblue',
+  }),
+];
+
+// Add impact mouse cursor event
+function startAddImpact() {
+  $("#add_impact_button").replaceWith('<button id="add_impact_button" onclick="cancelAddImpact();" class="btn navbar-btn btn-danger"><span class="glyphicon glyphicon-map-marker"></span> Cancel Impact</button>');
+  if ($.cookie('hide_add_impact') == null) {
+    $("#addImpactModal").modal('show');
+  }
+  map.on('click', onMapClick);
+  $('#map').css('cursor', 'crosshair');
+  return false;
+}
+
+// cancel adding an impact
+function cancelAddImpact() {
+  $('#add_impact_button').replaceWith('<button id="add_impact_button" onclick="startAddImpact();" class="btn navbar-btn btn-primary"><span class="glyphicon glyphicon-map-marker"></span> Add an Impact</button>');
+  newImpact.clearLayers();
+  $('#map').css('cursor', '');
+  map.removeEventListener('click', onMapClick);
+}
+
+// finish adding an impact
+function finishAddImpact() {
+  $('#add_impact_button').replaceWith('<button id="add_impact_button" onclick="startAddImpact();" class="btn navbar-btn btn-primary"><span class="glyphicon glyphicon-map-marker"></span> Add an Impact</button>');
+  newImpact.clearLayers();
+  impactClusterGroup.clearLayers();
+  heatMapGroup.clearLayers();
+  impacts.refresh();
+  countyCounts.refresh();
+  zipCounts.refresh();
+  $('#map').css('cursor', '');
+  map.removeEventListener('click', onMapClick);
+}
+
+// submit impact
+function submitImpact() {
+
+  // Collect data from the form
+  var impact_type = $("#id_impact_type").val();
+  var location_name = $("#id_location_name").val();
+  var comment = $("#id_comment").val();
+  var coordinates = $("#coordinates").val();
+
+  // Do some basic checks
+  if (location_name.length == 0) {
+    alert("Please include a location name.");
+    return false;
+  }
+
+  if (comment.length == 0) {
+    alert("Please include a comment.");
+    return false;
+  }
+
+  // Format data to send to server
+  var dataString = "coordinates=" + coordinates + "&impact_type=" + impact_type + "&location_name=" + location_name + "&comment=" + comment;
+
+  // Post data to server
+  $.ajax({
+      type: 'POST',
+      url: '/add_impact/',
+      data: dataString,
+      success: function(data) {
+        finishAddImpact();
+      },
+      error: function(data) {
+        alert("Something didn't work correctly.");
+        finishAddImpact();
+      },
+  });
+}
+
+// Marker dragend handler
+function onMarkerDragEnd(event) {
+  var marker = event.target;
+  marker.openPopup();
+  var latlng = marker.getLatLng();
+  $('#coordinates').val(latlng.lng + ',' + latlng.lat);
+}
+
+// Map click handler
+function onMapClick(event) {
+  var newMarkerIcon = L.AwesomeMarkers.icon({
+    icon: 'glyphicon-map-marker',
+    markerColor: 'darkpurple'
+  });
+
+  var latlng = event.latlng;
+  var marker = L.marker(latlng, {
+      draggable: true,
+      icon: newMarkerIcon
+  });
+  marker.on('dragend', onMarkerDragEnd);
+
+  newImpact.clearLayers();
+  newImpact.addLayer(marker);
+  // Popup form
+  var form = $('#form_container').html();
+  marker.bindPopup(form).openPopup();
+
+  // update coordinates
+  $('#coordinates').val(latlng.lng + ',' + latlng.lat);
+}
+
+// get heat map
+function getImpacts(heatMapGroup, clusterGroup) {
+
+  var layer = L.geoJson.ajax('/impacts', {
+      pointToLayer: function(feature, latlng) {
+        var marker = L.marker(latlng, {icon: icons[feature.properties.impact_type]});
+        clusterGroup.addLayer(marker);
+        return marker;
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup('<strong>Location Name:</strong>' +
+          '<br />' + feature.properties.location_name +
+          '<br /><strong>Comments:</strong>' +
+          '<br />' + feature.properties.comment);
+      },
+      middleware: function(data) {
+        var heatmap = getHeatMap(data);
+        heatMapGroup.clearLayers();
+        heatMapGroup.addLayer(heatmap);
+        return data;
+     }
+  });
+
+  return layer;
+}
+
+// Generates a heatmap layer from geojson point data
+function getHeatMap(geojson) {
+  var coords = [];
+  for (var i=0; i<geojson.features.length; i++) {
+    var lng = geojson.features[i].geometry.coordinates[0];
+    var lat = geojson.features[i].geometry.coordinates[1];
+    coords.push([lat, lng, 0.5]);
+  }
+  var heatmap = new L.TileLayer.WebGLHeatMap({autoresize: true, opacity: 0.6});
+  heatmap.setData(coords);
+  return heatmap;
+}
+
+function getColor(count) {
+  return  count >= 20  ? '#99000d' :
+          count >= 15  ? '#cb181d' :
+          count >= 10  ? '#ef3b2c' :
+          count >= 6   ? '#fc9272' :
+          count >= 3   ? '#fcbba1' :
+          count >= 1   ? '#fee5d9' :
+                         '#ffffff';
+}
+
+var legend = L.control({position: 'bottomright'});
+
+legend.onAdd = function(map) {
+  var div = L.DomUtil.create('div', 'info legend');
+
+    div.innerHTML +=
+      '<i style="background:' + getColor(0) + '"></i> ' + '0 <br />' +
+      '<i style="background:' + getColor(1) + '"></i> ' + '1&ndash;2 <br />' +
+      '<i style="background:' + getColor(3) + '"></i> ' + '3&ndash;5 <br />' +
+      '<i style="background:' + getColor(6) + '"></i> ' + '6&ndash;9 <br />' +
+      '<i style="background:' + getColor(10) + '"></i> ' + '10&ndash;14 <br />' +
+      '<i style="background:' + getColor(15) + '"></i> ' + '15&ndash;19 <br />' +
+      '<i style="background:' + getColor(20) + '"></i> ' + '20 or more <br />';
+
+    return div;
+};
+
+var countyInfo = L.control({position: 'bottomleft'});
+
+countyInfo.onAdd = function(map) {
+  this._div = L.DomUtil.create('div', 'info');
+  this.update();
+  return this._div;
+};
+
+countyInfo.update = function(properties) {
+  this._div.innerHTML = '<h4>County Summary</h4>' +
+    (properties ?
+     '<ul class="list-group">' +
+     '<li class="list-group-item"><strong>County: </strong>' + properties.countyname + '</li>' +
+     '<li class="list-group-item"><strong>Impacts: </strong>' + properties.count + '</li>'+
+     '</ul>' :
+     'Hover over a county');
+};
+
+var zipInfo = L.control({position: 'bottomleft'});
+
+zipInfo.onAdd = function(map) {
+  this._div = L.DomUtil.create('div', 'info');
+  this.update();
+  return this._div;
+}
+
+zipInfo.update = function(properties) {
+  this._div.innerHTML = this._div.innerHTML = '<h4>Zip Code Summary</h4>' +
+    (properties ?
+     '<ul class="list-group">' +
+     '<li class="list-group-item"><strong>Zip Code: </strong>' + properties.zip_code + '</li>' +
+     '<li class="list-group-item"><strong>Impacts: </strong>' + properties.count + '</li>'+
+     '</ul>' :
+     'Hover over a zip code');
+};
+
+function getCounts(area) {
+  var layer = L.geoJson.ajax('/counts?area=' + area, {
+    style: function(feature) {
+      return {
+        fillColor: getColor(feature.properties.count),
+        weight: 2,
+        opacity: 1,
+        color: '#222',
+        dashArray: '1',
+        fillOpacity: .7
+      };
+    },
+    onEachFeature: function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightPoly,
+        click: highlightPoly,
+        mouseout: resetPoly,
+      });
+    }
+  });
+  return layer;
+}
+
+function getNormals() {
+  // Marker symbology
+  var icon =  L.AwesomeMarkers.icon({
+    icon: 'glyphicon-cloud',
+    markerColor: 'green',
+  });
+
+  // Storm Events Layer (tiled)
+  var layer = new L.TileLayer.GeoJSON('/normals/{z}/{x}/{y}.geojson', {
+      clipTiles: true
+    },{
+      pointToLayer: function(feature, latlng) {
+        var marker = L.marker(latlng, {icon: icon});
+        return marker;
+      },
+      onEachFeature: function(feature, layer) {
+        if (feature.properties) {
+          var popupString = '<div class="popup">';
+          popupString += '<strong>Climate Normals</strong>';
+          popupString += '<br />Station Name: ' + feature.properties.station_na;
+          popupString += '<br />Station ID: ' + feature.properties.station;
+          var prcp = feature.properties.ann_prcp_n;
+          popupString += '<br />Annual Precipitation (in): ' + (prcp != -9999 ? (prcp / 100.0).toFixed(2) : 'N/A');
+          var snow = feature.properties.ann_snow_n;
+          popupString += '<br />Annual Snowfall (in): ' + (snow != -9999 ? (snow / 10.0).toFixed(1) : 'N/A');
+          var tmax = feature.properties.ann_tmax_n;
+          popupString += '<br />Average Max Temperature (F): ' + ( tmax != -9999 ? (tmax / 10.0).toFixed(1): 'N/A');
+          var tmin = feature.properties.ann_tmin_n;
+          popupString += '<br />Average Min Temperature (F): ' + ( tmin != -9999 ? (tmin / 10.0).toFixed(1): 'N/A');
+
+          popupString += '</div>';
+          layer.bindPopup(popupString);
+        }
+      }
+  });
+
+  return layer;
+}
+
+
+function getStormEvents() {
+  // Marker symbology
+  var icon =  L.AwesomeMarkers.icon({
+    icon: 'glyphicon-flash',
+    markerColor: 'orange',
+  });
+
+  // Storm Events Layer (tiled)
+  var layer = new L.TileLayer.GeoJSON('/storm_events/{z}/{x}/{y}.geojson', {
+      clipTiles: true
+    },{
+      pointToLayer: function(feature, latlng) {
+        var marker = L.marker(latlng, {icon: icon});
+        return marker;
+      },
+      onEachFeature: function(feature, layer) {
+        if (feature.properties) {
+          var popupString = '<div class="popup">';
+          popupString += '<strong>Storm Event Summary</strong>';
+          popupString += '<br />Event Type: ' + feature.properties.event_type;
+          popupString += '<br />Begin Date/Time: ' + feature.properties.begin_date;
+          popupString += '<br />End Date/Time: ' + feature.properties.end_date_t;
+          var narr = feature.properties.event_narr;
+          popupString += '<br />Narrative: ' + (narr ? narr : 'none');
+          popupString += '</div>';
+          layer.bindPopup(popupString);
+        }
+      }
+  });
+
+  return layer;
+}
+
+function highlightPoly(e) {
+  var layer = e.target;
+
+  layer.setStyle({
+    weight: 5,
+    color: '#666',
+    dashArray: '',
+    fillOpacity: 0.7,
+  });
+
+  if (!L.Browser.ie && !L.Browser.opera) {
+    layer.bringToFront();
+  }
+
+  if (layer.feature.properties.countyname) {
+    countyInfo.update(layer.feature.properties);
+  } else if (layer.feature.properties.zip_code) {
+    zipInfo.update(layer.feature.properties);
+  }
+}
+
+function resetPoly(e) {
+  var layer = e.target;
+  if (layer.feature.properties.countyname) {
+    countyCounts.resetStyle(e.target);
+  } else if (layer.feature.properties.zip_code) {
+    zipCounts.resetStyle(e.target);
+  }
+}
+
+function highlightZip(e) {
+  var layer = e.target;
+
+  layer.setStyle({
+    weight: 5,
+    color: '#666',
+    dashArray: '',
+    fillOpacity: 0.7,
+  });
+
+  if (!L.Browser.ie && !L.Browser.opera) {
+    layer.bringToFront();
+  }
+
+  zipInfo.update(layer.feature.properties);
+}
+
+function resetZip(e) {
+  zipCounts.resetStyle(e.target);
+}
+
+map.on('overlayadd', function(eventLayer) {
+  if (eventLayer.name === 'Impacts per County') {
+    if (this.hasLayer(zipCounts)) {
+      this.removeLayer(zipCounts);
+      this.removeControl(zipInfo);
+      this.removeControl(legend);
+    }
+    countyInfo.addTo(this);
+    legend.addTo(this);
+  } else if (eventLayer.name === 'Impacts per Zip Code') {
+    if (this.hasLayer(countyCounts)) {
+      this.removeLayer(countyCounts);
+      this.removeControl(countyInfo);
+      this.removeControl(legend);
+    }
+    zipInfo.addTo(this);
+    legend.addTo(this);
+  }
+});
+
+map.on('overlayremove', function(eventLayer) {
+  if (eventLayer.name === 'Impacts per County') {
+    this.removeControl(countyInfo);
+    this.removeControl(legend);
+  } else if (eventLayer.name === 'Impacts per Zip Code') {
+    this.removeControl(zipInfo);
+    this.removeControl(legend);
+  }
+});
+
+</script>
+{% endblock %}
